@@ -1,0 +1,31 @@
+services:
+  redis:
+    image: redis:7.2.4-alpine
+    command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+  mongodb:
+    image: mongo:5.0.26-focal
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: 'jobs'
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+  mongo-express:
+    image: mongo-express:1.0.2
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+    ports:
+      - 8081:8081
+    networks:
+      - backend
+networks:
+  backend:
